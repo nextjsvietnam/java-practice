@@ -1,20 +1,39 @@
 package net.re;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for simple App.
  */
 public class AppTest {
-    /**
-     * Rigorous Test :-)
-     */
+    private final InputStream originalIn = System.in;
+    private final PrintStream originalOut = System.out;
+
+    private ByteArrayOutputStream testOut;
+
+    @BeforeEach
+    public void setUpInput() {
+        testOut = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(testOut));
+    }
+
+    @AfterEach
+    public void restoreSystemInputOutput() {
+        System.setIn(originalIn);
+        System.setOut(originalOut);
+    }
+
     @Test
     public void shouldAnswerWithTrue() {
         boolean value = true;
@@ -22,38 +41,33 @@ public class AppTest {
     }
 
     @Test
-    public void testMainOutputsHelloWorld() {
-        // The output has been write to screen(console)
-        // So to be able to test it, you must redirect the output to a temperate memory
+    public void testHelloWorld() {
 
-        // Create a ByteArrayOutputStream instance
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        App.helloWorld();
+        assertEquals(App.content() + "\n", testOut.toString());
 
-        // Create a PrintStream that writes to our ByteArrayOutputStream
-        PrintStream ps = new PrintStream(baos);
+    }
 
-        // Redirect System.out to our PrintStream
-        System.setOut(ps);
+    @Test
+    public void testScanInputs() {
+        String simulatedUserInput = "10 20 30\n";
+        ByteArrayInputStream testIn = new ByteArrayInputStream(simulatedUserInput.getBytes());
+        System.setIn(testIn);
 
-        App.main(null);
+        int[] expected = { 10, 20, 30 };
+        int[] actual = App.scanInputs();
+        assertArrayEquals(expected, actual, "The scanned inputs should match the expected values.");
+    }
 
-        assertEquals(App.content() + "\n", baos.toString());
+    @Test
+    public void testReadStandardInput() {
+        // mock
+        String simulatedUserInput = "1 2 3\n";
+        ByteArrayInputStream testIn = new ByteArrayInputStream(simulatedUserInput.getBytes());
+        System.setIn(testIn);
+
+        App.readStandardInput();
+        String expectedOutput = App.readStandardInputCommand() + "1\n2\n3\n";
+        assertEquals(expectedOutput, testOut.toString());
     }
 }
-
-/*
- * public class HelloWorldTest {
- * 
- * @Test
- * public void testMainOutputsHelloWorld() {
- * ByteArrayOutputStream outContent = new ByteArrayOutputStream();
- * System.setOut(new PrintStream(outContent));
- * 
- * HelloWorld.main(new String[]{}); // Call main to print to console
- * 
- * assertEquals("Hello, World!\n", outContent.toString(),
- * "Expected Hello, World! to be printed");
- * System.setOut(System.out); // Reset the System.out to its original stream
- * }
- * }
- */

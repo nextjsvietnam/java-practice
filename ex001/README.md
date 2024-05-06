@@ -5,6 +5,7 @@ Targets:
 1. [x] Add maven
 2. [x] Add JUnit
 3. [x] Write Hello World Test
+4. [x] Write a function to read stdin from user
 
 ## Run tests with maven
 
